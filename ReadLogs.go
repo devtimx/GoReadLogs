@@ -35,9 +35,9 @@ func main() {
 
 }
 
-func ListLogs(ruta string) []string {
+func ListLogs(route string) []string {
 	var name []string
-	archivos, err := ioutil.ReadDir(ruta)
+	archivos, err := ioutil.ReadDir(route)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -52,9 +52,11 @@ func ListLogs(ruta string) []string {
 }
 
 func ReadLog(w http.ResponseWriter, r *http.Request) {
-	Ruta := r.URL.Query().Get("ruta")
+	Route := r.URL.Query().Get("route")
+
 	var lines []string
-	file, err := os.OpenFile(Ruta, os.O_RDWR|os.O_CREATE, 0755)
+
+	file, err := os.OpenFile(Route, os.O_RDONLY, os.ModeDevice.Perm())
 
 	if err != nil {
 		log.Fatalf("Error when openig file: %s", err)
