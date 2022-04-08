@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -52,13 +53,26 @@ func ListLogs(ruta string) []string {
 
 func ReadLog(w http.ResponseWriter, r *http.Request) {
 	Ruta := r.URL.Query().Get("ruta")
+	var lines []string
+	file, err := os.OpenFile(Ruta, os.O_RDWR|os.O_CREATE, 0755)
 
-	files, err := ioutil.ReadFile(Ruta)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error when openig file: %s", err)
 	}
+
+	fileScanner := bufio.NewScanner(file)
+
+	for fileScanner.Scan() {
+		lines = append(lines, fileScanner.Text())
+	}
+
+	if err := fileScanner.Err(); err != nil {
+		log.Fatalf("Error while reading file: %s", err)
+	}
+
+	defer file.Close()
 
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(files)
+	json.NewEncoder(w).Encode(lines)
 }
